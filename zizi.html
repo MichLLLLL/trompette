@@ -139,6 +139,7 @@
   </div>  
 
   <div id="audios">  
+    <!-- Liste complète des audios avec les nouvelles conventions de nommage -->
     <audio id="E3" src="E3.mp3" preload="auto"></audio>
     <audio id="F3" src="F3.mp3" preload="auto"></audio>
     <audio id="F3DI" src="F3di.mp3" preload="auto"></audio>
@@ -257,24 +258,31 @@ function playNoteAudio(note) {
   // Conversion du nom de note en ID audio
   let audioId = note.replace(/♭/g, "b").replace(/♯/g, "#");
   
-  // Cas spéciaux pour les bémols (on utilise le dièse équivalent)
+  // Règles de conversion spécifiques :
   if (audioId.includes("b")) {
-    switch(audioId[0]) {
-      case "D": audioId = "C" + audioId.slice(1).replace("b", "DI"); break; // Db -> C#
-      case "E": audioId = "D" + audioId.slice(1).replace("b", "DI"); break; // Eb -> D#
-      case "G": audioId = "F" + audioId.slice(1).replace("b", "DI"); break; // Gb -> F#
-      case "A": audioId = "G" + audioId.slice(1).replace("b", "DI"); break; // Ab -> G#
-      case "B": audioId = "A" + audioId.slice(1).replace("b", "DI"); break; // Bb -> A#
+    // Conversion des bémols en leur équivalent dièse
+    switch(audioId[0] + audioId[1]) {
+      case "Db": audioId = audioId.replace("Db", "C#"); break;
+      case "Eb": audioId = audioId.replace("Eb", "D#"); break;
+      case "Gb": audioId = audioId.replace("Gb", "F#"); break;
+      case "Ab": audioId = audioId.replace("Ab", "G#"); break;
+      case "Bb": audioId = audioId.replace("Bb", "A#"); break;
     }
-  } else if (audioId.includes("#")) {
-    audioId = audioId.replace("#", "DI");
   }
+  
+  // Conversion des dièses en format DI
+  audioId = audioId.replace("#", "DI");
+  
+  // Cas spéciaux pour les notes qui n'ont pas de fichier exact
+
   
   currentAudio = document.getElementById(audioId);
   if (currentAudio) {
-    currentAudio.play().catch(e => console.log("Audio error:", e));
+    currentAudio.play().catch(e => console.log("Audio play error:", e));
+  } else {
+    console.warn("Audio not found for:", audioId, "from note:", note);
   }
-}
+      }
 
 function displayNote(nameOct) {
   const m = nameOct.match(/^([A-G])([b#]?)(\d+)$/);
