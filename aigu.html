@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="fr">  
+<head>  
+<meta charset="utf-8" />  
+<meta name="viewport" content="width=device-width,initial-scale=1" />  
+<title>Doigtés trompette</title>  
+<style>  
+  :root{  
+    --bg:#f7f7f7;  
+    --card:#ffffff;  
+    --accent:#111;  
+    --ok:#1a8f3a;  
+    --ko:#c33;  
+  }  
+  html,body{height:100%;margin:0;font-family: monospace; background:var(--bg); color:var(--accent);}  
+  .wrap{  
+    min-height:100%;  
+    display:flex;  
+    align-items:center;  
+    justify-content:center;  
+    padding:28px;  
+    box-sizing:border-box;  
+  }  
+  .card{  
+    background:var(--card);  
+    border-radius:10px;  
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);  
+    padding:28px;  
+    width:520px;  
+    max-width:95%;  
+    text-align:center;  
+  }  
+  .note{
+    font-size:64px;
+    line-height:1;
+    margin:8px 0 18px 0;
+    letter-spacing:2px;
+  }
+  .hint{
+    font-size:14px;
+    color:#444;
+    margin-bottom:16px;
+  }
+  .pistons{
+    display:flex;
+    gap:18px;
+    justify-content:center;
+    margin:14px 0 18px 0;
+  }
+  .piston{
+    width:84px;
+    height:84px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:700;
+    border:3px solid #000;
+    user-select:none;
+    cursor:pointer;
+    transition: transform .12s ease, background .12s ease;
+    background:transparent;
+  }
+  .piston:active{ transform: translateY(2px) scale(.98); }
+  .piston.on{
+    background:#111;
+    color:#fff;
+  }
+  .actions{ display:flex; gap:12px; justify-content:center; margin-top:10px; }
+  button{
+    cursor:pointer;
+    padding:10px 16px;
+    font-family:inherit;
+    font-size:16px;
+    border-radius:8px;
+    border:2px solid #111;
+    background:transparent;
+  }
+  button.primary{
+    background:#111;color:#fff;border-color:#111;
+  }
+  .status{
+    margin-top:22px;
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    align-items:center;
+    font-size:14px;
+    color:#222;
+  }
+  .counters{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    background:#fff;
+    border:2px solid rgba(0,0,0,.06);
+    padding:10px 14px;
+    border-radius:8px;
+    box-shadow:0 8px 20px rgba(0,0,0,.06);
+    font-size:14px;
+    text-align:right;
+  }
+  .counters div{ line-height:1.2; }
+  .ok{ color:var(--ok); font-weight:700; }
+  .bad{ color:var(--ko); font-weight:700; }
+  @media (max-width:520px){
+    .piston{ width:64px;height:64px;font-size:22px; }
+    .note{ font-size:48px; }
+  }
+  #audios {
+    display: none;
+  }
+</style>
+</head>  
+<body>  
+  <div class="wrap">  
+    <div class="card" role="application" aria-label="Trainer doigtés trompette">  
+      <div class="hint">Note pour trompette en <strong>Do</strong></div>  
+      <div id="note" class="note" aria-live="polite"></strong>—</strong>
+      </div>
+      <div class="pistons" role="group" aria-label="Pistons">  
+        <div class="piston" data-val="1" tabindex="0" role="button" aria-pressed="false">1</div>  
+        <div class="piston" data-val="2" tabindex="0" role="button" aria-pressed="false">2</div>  
+        <div class="piston" data-val="3" tabindex="0" role="button" aria-pressed="false">3</div>  
+      </div>  
+
+      <div class="actions">  
+        <button id="validate" class="primary">Valider</button>  
+        <button id="next" title="Afficher une nouvelle note (perd la note courante si non validée)">Nouvelle note</button>  
+      </div>  
+
+      <div class="status" id="feedback" aria-live="polite"></div>  
+    </div>
+  </div>    
+
+  <div class="counters" aria-hidden="false">  
+    <div>✅ Bonnes : <span id="good">0</span></div>  
+    <div>❌ Mauvaises : <span id="bad">0</span></div>  
+  </div>  
+
+  <div id="audios">  
+    <!-- Liste complète des audios avec les nouvelles conventions de nommage -->
+    <audio id="E3" src="E3.mp3" preload="auto"></audio>
+    <audio id="F3" src="F3.mp3" preload="auto"></audio>
+    <audio id="F3DI" src="F3di.mp3" preload="auto"></audio>
+    <audio id="G3" src="G3.mp3" preload="auto"></audio>
+    <audio id="G3DI" src="G3di.mp3" preload="auto"></audio>
+    <audio id="A3" src="A3.mp3" preload="auto"></audio>
+    <audio id="A3DI" src="A3di.mp3" preload="auto"></audio>
+    <audio id="B3" src="B3.mp3" preload="auto"></audio>
+    <audio id="C4" src="C4.mp3" preload="auto"></audio>
+    <audio id="C4DI" src="C4di.mp3" preload="auto"></audio>
+    <audio id="D4" src="D4.mp3" preload="auto"></audio>
+    <audio id="D4DI" src="D4di.mp3" preload="auto"></audio>
+    <audio id="E4" src="E4.mp3" preload="auto"></audio>
+    <audio id="F4" src="F4.mp3" preload="auto"></audio>
+    <audio id="F4DI" src="F4di.mp3" preload="auto"></audio>
+    <audio id="G4" src="G4.mp3" preload="auto"></audio>
+    <audio id="G4DI" src="G4di.mp3" preload="auto"></audio>
+    <audio id="A4" src="A4.mp3" preload="auto"></audio>
+    <audio id="A4DI" src="A4di.mp3" preload="auto"></audio>
+    <audio id="B4" src="B4.mp3" preload="auto"></audio>
+    <audio id="C5" src="C5.mp3" preload="auto"></audio>
+    <audio id="C5DI" src="C5di.mp3" preload="auto"></audio>
+    <audio id="D5" src="D5.mp3" preload="auto"></audio>
+    <audio id="D5DI" src="D5di.mp3" preload="auto"></audio>
+    <audio id="E5" src="E5.mp3" preload="auto"></audio>
+    <audio id="F5" src="F5.mp3" preload="auto"></audio>
+    <audio id="F5DI" src="F5di.mp3" preload="auto"></audio>
+    <audio id="G5" src="G5.mp3" preload="auto"></audio>
+    <audio id="G5DI" src="G5di.mp3" preload="auto"></audio>
+    <audio id="A5" src="A5.mp3" preload="auto"></audio>
+    <audio id="A5DI" src="A5di.mp3" preload="auto"></audio>
+    <audio id="B5" src="B5.mp3" preload="auto"></audio>
+    <audio id="C6" src="C6.mp3" preload="auto"></audio>
+  </div>
+
+  <script>  
+// Doigtés exacts fournis
+const NOTES_FINGERINGS = {
+  "E3": "123",
+  "F3": "13",
+  "F#3": "23", "Gb3": "23",
+  "G3": "12",
+  "G#3": "1", "Ab3": "1",
+  "A3": "2",
+  "A#3": "0", "Bb3": "0",
+  "B3": "123",
+  "C4": "13",
+  "C#4": "23", "Db4": "23",
+  "D4": "12",
+  "D#4": "1", "Eb4": "1",
+  "E4": "2",
+  "F4": "0",
+  "F#4": "23", "Gb4": "23",
+  "G4": "12",
+  "G#4": "1", "Ab4": "1",
+  "A4": "2",
+  "A#4": "0", "Bb4": "0",
+  "B4": "12",
+  "C5": "1",
+  "C#5": "2", "Db5": "2",
+  "D5": "0",
+  "D#5": "1", "Eb5": "1",
+  "E5": "2",
+  "F5": "0",
+  "F#5": "23", "Gb5": "23",
+  "G5": "12",
+  "G#5": "1", "Ab5": "1",
+  "A5": "2",
+  "A#5": "0", "Bb5": "0",
+  "B5": "12",
+  "C6": "1"
+};
+
+// Liste de toutes les notes possibles (pour sélection aléatoire)
+const ALL_NOTES = Object.keys(NOTES_FINGERINGS);
+
+// Variables d'état
+let expectedValves = null;
+let currentNote = null;
+let good = 0, bad = 0;
+let currentAudio = null;
+
+// DOM Elements
+const noteEl = document.getElementById("note");
+const pistons = Array.from(document.querySelectorAll(".piston"));
+const validateBtn = document.getElementById("validate");
+const nextBtn = document.getElementById("next");
+const feedback = document.getElementById("feedback");
+const goodEl = document.getElementById("good");
+const badEl = document.getElementById("bad");
+
+// Fonctions utilitaires
+const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+
+function togglePiston(el) {
+  el.classList.toggle("on");
+  el.setAttribute("aria-pressed", el.classList.contains("on"));
+}
+
+function readSelection() {
+  const on = pistons.filter(p => p.classList.contains("on")).map(p => p.dataset.val).sort();
+  return on.length === 0 ? "0" : on.join("");
+}
+
+function stopCurrentAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+}
+
+function playNoteAudio(note) {
+  stopCurrentAudio();
+  
+  // Conversion du nom de note en ID audio
+  let audioId = note.replace(/♭/g, "b").replace(/♯/g, "#");
+  
+  // Règles de conversion spécifiques :
+  if (audioId.includes("b")) {
+    // Conversion des bémols en leur équivalent dièse
+    switch(audioId[0] + audioId[1]) {
+      case "Db": audioId = audioId.replace("Db", "C#"); break;
+      case "Eb": audioId = audioId.replace("Eb", "D#"); break;
+      case "Gb": audioId = audioId.replace("Gb", "F#"); break;
+      case "Ab": audioId = audioId.replace("Ab", "G#"); break;
+      case "Bb": audioId = audioId.replace("Bb", "A#"); break;
+    }
+  }
+  
+  // Conversion des dièses en format DI
+  audioId = audioId.replace("#", "DI");
+  
+  // Cas spéciaux pour les notes qui n'ont pas de fichier exact
+
+  
+  currentAudio = document.getElementById(audioId);
+  if (currentAudio) {
+    currentAudio.play().catch(e => console.log("Audio play error:", e));
+  } else {
+    console.warn("Audio not found for:", audioId, "from note:", note);
+  }
+      }
+
+function displayNote(nameOct) {
+  const m = nameOct.match(/^([A-G])([b#]?)(\d+)$/);
+  if (!m) { noteEl.textContent = nameOct; return; }
+  
+  const letter = m[1], acc = m[2], oct = m[3];
+  let accSym = "";
+  if (acc === "#") accSym = "♯";
+  if (acc === "b") accSym = "♭";
+  
+  noteEl.innerHTML = `${letter}${accSym}<span style="font-size:20px;opacity:.6;margin-left:6px">oct ${oct}</span>`;
+}
+
+function clearPistons() {
+  pistons.forEach(p => {
+    p.classList.remove("on");
+    p.setAttribute("aria-pressed", "false");
+  });
+}
+
+function newNote() {
+  stopCurrentAudio();
+  const pick = rand(ALL_NOTES);
+  
+  displayNote(pick);
+  clearPistons();
+  feedback.textContent = "";
+  currentNote = pick;
+  expectedValves = NOTES_FINGERINGS[pick];
+  
+  playNoteAudio(pick);
+}
+
+function validate() {
+  if (!currentNote) {
+    feedback.textContent = "Aucune note ? Clique sur 'Nouvelle note'.";
+    return;
+  }
+  
+  const sel = readSelection();
+  if (sel === expectedValves) {
+    good++;
+    goodEl.textContent = good;
+    feedback.innerHTML = `<span style="color:var(--ok);font-weight:700">Correct ✓</span> — nouvelle note.`;
+    setTimeout(newNote, 550);
+  } else {
+    bad++;
+    badEl.textContent = bad;
+    feedback.innerHTML = `<span style="color:var(--ko);font-weight:700">Faux ✗</span> — la note reste la même.`;
+    clearPistons();
+  }
+}
+
+// Événements
+pistons.forEach(p => {
+  p.addEventListener("click", () => togglePiston(p));
+  p.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      togglePiston(p);
+    }
+  });
+});
+
+validateBtn.addEventListener("click", validate);
+nextBtn.addEventListener("click", newNote);
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "v" || e.key === "V") validate();
+  if (e.key === "n" || e.key === "N") newNote();
+});
+
+// Initialisation
+newNote();
+</script>
+</body>
+                      </html>
